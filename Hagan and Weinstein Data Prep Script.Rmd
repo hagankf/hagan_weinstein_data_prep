@@ -1,0 +1,173 @@
+---
+title: "Project"
+author: "Netanel Weinstein and Katherine Hagan"
+date: "November 14, 2018"
+output: html_document
+---
+Prior research suggests that 8 month-old infants track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (Saffran, Aslin, and Newport, 1996). A central debate in this regard relates to the level of abstraction at which infants' statstical learning occurs.  On the one hand, "transition-finding"" (also referred to as "statistical") models posit that infants' track regularities based on the likelihood that a specific unit of input (say, a single shape or syllable) will appear given another unit of input (another shape or syllable that typically precedes it). On the other hand, "chunking" (also referred to as "clustering") models argue that infants learn to discern statistically coherent units that become represented in memory in the form of "chunks." These two models make different predictions about the ways that infants will respond to novel (rule-abiding or not-rule-abiding) stimuli after being presented with five-minutes of patterned input during a familiarization phase.
+
+Some looking-time paradigms argue that infants will look longer at stimuli that  they are familiar with, while others posit that infants will look longer at stimuli that are novel. That means that the two paradigms make opposing predictions: increased looking time duration may indicate the stimulus is familiar. Or the opposite may be true: infants may look at a given stimulus longer because it is novel. 
+
+This data set (from Slone and Johnson, 2018) attempted to determine whether infant looking time supported the transition-finding model or the chunking model. It did so by presenting infants with patterned stimuli during a familiarization phase, and then presenting novel stimuli about which the two models (transition-finding and chunking) make contrasting predictions. 
+
+```{r data}
+library(tidyverse)
+library(rio)
+library(here)
+library(forcats)
+
+rm(list=ls()) #To clear the environment if needed
+d <- import("125289-FinalData_allExpts_forDatabrary.xlsx", setclass = "tbl_df")
+
+#Columns 7 through 9 have an independent variable embedded in the column name. To address this, we put "Triple or Pair," "Illusory or Embedded," and "Part" in one column (the key column, here named "stim_type"), and the values in a column called "look duration."
+td <- d %>%
+  gather(key = "stim_type", value = "lookduration", 7:9)
+
+#The same embedding of the independent variable into the column name applies to the log-transformed version of the looking time values. So we use the gather function again to separate the categorical IV named in the column name from the column's values, which are log-transformed looking times. The "discard" column is labelled such because it is redundant with the "stim_type" column generated in the gather() function above.  
+td_ier <- td %>%
+  gather(key = "discard", value = "log_lookduration", 7:9) %>%
+  select(-discard) %>%
+
+#Now the remaining mess that needs tidying is that the stim_type column does not actually tell us yet if the type of stimulus is a triplet or pair (ostensibly learned stimuli presented to the infant during the familiarization phase), or if it is illusory or embedded (novel stimuli not presented during familiarization phase). The type of stimulus used depends on the experiment number in column one. First, let's recode "Triplet_or_Pair_AvgLookDuration"" as "familiar," "Illusory_or_Embedded_AvgLookDuration" as "novel," and "Part_AvgLookDuration" as "transitional (part-sequence)"
+
+td_iest <- td_ier %>%
+  mutate(stim_type = fct_recode(stim_type,
+    "familiar" = "Triplet_or_Pair_AvgLookDuration",
+    "novel" = "Illusory_or_Embedded_AvgLookDuration",
+    "transitional" = "Part_AvgLookDuration"))
+
+Experiment1_results <- td_iest %>%
+  filter(Experiment==1) %>%
+  ggplot(aes(x = stim_type, y = lookduration)) +
+  geom_col()
+
+Experiment1_results
+
+Experiment2_results <- td_iest %>%
+  filter(Experiment==2) %>%
+  ggplot(aes(x = stim_type, y = lookduration)) +
+  geom_col()
+
+Experiment2_results
+
+#I would like to be able to create a variable called "stim_structure" that says that the familiar variable in Experiment 1 consists of triplets, and the novel variable in Experiment 1 are illusory sequences. I would like to do the same for Experiment 2: say that the novel variable in this case are embedded pairs, and that the familiar variable is a regular pair. I document several attempts to do this below to no avail (yet!)
+
+#Next, we indicate the structure of the stimulus by taking the experiment number and stim_type into account:
+td_iestest <- td_iest %>%
+  mutate(stim_structure = ifelse(Experiment == 1 & grepl("familiar", stim_type), "triplet",
+    ifelse(Experiment == 1 & grepl("novel," stim_type), "illusory",
+    ifelse(Experiment == 1 & grepl("transitional", stim_type), "part-sequence",
+    ifelse(Experiment == 2 & grepl("familiar", stim_type), "pair",
+    ifelse(Experiment == 2 & grepl("novel", stim_type), "embedded",
+    ifelse(Experiment == 2 & grepl("transitional", stim_type), "part-sequence")))))))
+
+#Attempt 1 
+td_iestest <- td_iest %>%
+  mutate(stim_structure = ifelse(Experiment = 1 & grepl("familiar", stim_type), "triplet",
+    ifelse(Experiment = 1 & grepl("novel,"), "illusory",
+    ifelse(Experiment = 1 & grepl("transitional", stim_type), "part-sequence",
+    ifelse(Experiment = 2 & grepl("familiar", stim_type), "pair",
+    ifelse(Experiment = 2 & grepl("novel", stim_type), "embedded",
+    ifelse(Experiment = 2 & grepl("transitional", stim_type), "part-sequence")))))))
+    
+#Attempt 2:
+td_iestest <- td_iest %>%
+  mutate(stim_structure = ifelse(Experiment == 1 & grepl("familiar", stim_type), "triplet",
+    ifelse(Experiment == 1 & grepl("novel,"), "illusory",
+    ifelse(Experiment == 1 & grepl("transitional", stim_type), "part-sequence",
+    ifelse(Experiment == 2 & grepl("familiar", stim_type), "pair",
+    ifelse(Experiment == 2 & grepl("novel", stim_type), "embedded",
+    ifelse(Experiment == 2 & grepl("transitional", stim_type), "part-sequence", "NA")))))))
+
+#Attempt 3: 
+td_iestest <- td_iest %>%
+  mutate(stim_structure = case_when(
+    Experiment == 1 & grepl("familiar", stim_type) ~ "triplet",
+    Experiment == 1 & grepl("novel," stim_type) ~ "illusory",
+    Experiment == 1 & grepl("transitional", stim_type) ~ "part-sequence",
+    Experiment == 2 & grepl("familiar", stim_type) ~ "pair",
+    Experiment == 2 & grepl("novel", stim_type) ~ "embedded",
+    Experiment == 2 & grepl("transitional", stim_type) ~ "part-sequence"))
+
+#Attempt 4: 
+td_iestest <- td_iest %>%
+  mutate(stim_structure = case_when(
+    Experiment = 1 & grepl("familiar", stim_type) ~ "triplet",
+    Experiment = 1 & grepl("novel," stim_type) ~ "illusory",
+    Experiment = 1 & grepl("transitional", stim_type) ~ "part-sequence",
+    Experiment = 2 & grepl("familiar", stim_type) ~ "pair",
+    Experiment = 2 & grepl("novel", stim_type) ~ "embedded",
+    Experiment = 2 & grepl("transitional", stim_type) ~ "part-sequence"))
+
+#Attempt 5: 
+td_iestest <- td_iest %>%
+  mutate(stim_structure = case_when(
+    Experiment = 1 & grepl("familiar", stim_type) ~ "triplet",
+    Experiment = 1 & grepl("novel," stim_type) ~ "illusory",
+    Experiment = 1 & grepl("transitional", stim_type) ~ "part-sequence",
+    Experiment = 2 & grepl("familiar", stim_type) ~ "pair",
+    Experiment = 2 & grepl("novel", stim_type) ~ "embedded",
+    Experiment = 2 & grepl("transitional", stim_type) ~ "part-sequence"))
+
+#Attempt 5.5: 
+td_iestest <- td_iest %>%
+  mutate(stim_structure = case_when(
+    "Experiment" == 1 & grepl("familiar", stim_type) ~ "triplet",
+    "Experiment" == 1 & grepl("novel," stim_type) ~ "illusory",
+    "Experiment" == 1 & grepl("transitional", stim_type) ~ "part-sequence",
+    "Experiment" == 2 & grepl("familiar", stim_type) ~ "pair",
+    "Experiment" == 2 & grepl("novel", stim_type) ~ "embedded",
+    "Experiment" == 2 & grepl("transitional", stim_type) ~ "part-sequence"))
+
+#Attempt 6: 
+td_iest %>%
+  filter("Experiment" == 1) %>%
+  mutate(stim_structure =
+    ifelse(grepl("familiar", "stim_type"), "triplet",
+    ifelse(grepl("novel," "stim_type"), "illusory",
+    ifelse(grepl("transitional", "stim_type"), "part-sequence",
+    ifelse(grepl("familiar", "stim_type"), "pair",
+    ifelse(grepl("novel", "stim_type"), "embedded",
+    ifelse(grepl("transitional", "stim_type"), "part-sequence")))))))
+
+#Attempt 7:
+td_iest %>%
+  filter(stim_type == "familiar") %>%
+  mutate(stim_structure =
+    ifelse("Experiment" == 1, "triplet",
+    ifelse("Experiment" == 2:4, "pair", "other")))
+#This worked, the problem is that it's now in its own data set without novel and part-sequence
+
+td_iestest <- td_iest %>%
+  mutate(stim_structure = 
+    ifelse("Experiment" == 1 & grepl("familiar", stim_type), "triplet",
+    ifelse("Experiment" == 1 & grepl("novel,"), "illusory",
+    ifelse("Experiment" == 1 & grepl("transitional", stim_type), "part-sequence",
+    ifelse("Experiment" == 2 & grepl(stim_type == familiar), "pair",
+    ifelse("Experiment" == 2 & stim_type == novel), "embedded",
+    ifelse("Experiment" == 2 & stim_type == transitional), "part-sequence", "other")))))
+
+#Attempt 8:
+td_iestest <- td_iest %>%
+  mutate(stim_structure = ifelse(Experiment == 1 & grepl("familiar", "stim_type"), "triplet",
+    ifelse(Experiment == 1 & grepl("novel," "stim_type"), "illusory",
+    ifelse(Experiment == 1 & grepl("transitional", "stim_type"), "part-sequence",
+    ifelse(Experiment == 2 & grepl("familiar", "stim_type"), "pair",
+    ifelse(Experiment == 2 & grepl("novel", "stim_type"), "embedded",
+    ifelse(Experiment == 2 & grepl("transitional", "stim_type"), "part-sequence")))))))
+
+#Attempt 9:
+td_iestest
+  mutate(td_iest, stim_structure = 
+    ifelse(Experiment == 1 & grepl("familiar", stim_type), "triplet",
+    ifelse(Experiment == 1 & grepl("novel," stim_type), "illusory",
+    ifelse(Experiment == 1 & grepl("transitional", stim_type) "part-sequence",
+    ifelse(Experiment == 2 & grepl(stim_type == familiar, "pair",
+    ifelse(Experiment == 2 & stim_type == novel, "embedded",
+    ifelse(Experiment == 2 & stim_type == transitional, "part-sequence")))))))
+
+
+
+
+
+```
