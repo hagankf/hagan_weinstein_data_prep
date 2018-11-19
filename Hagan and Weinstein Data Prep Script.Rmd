@@ -10,6 +10,7 @@ Some looking-time paradigms argue that infants will look longer at stimuli that 
 
 This data set (from Slone and Johnson, 2018) attempted to determine whether infant looking time supported the transition-finding model or the chunking model. It did so by presenting infants with patterned stimuli during a familiarization phase, and then presenting novel stimuli about which the two models (transition-finding and chunking) make contrasting predictions. 
 
+
 ```{r data}
 library(tidyverse)
 library(rio)
@@ -19,14 +20,27 @@ library(forcats)
 rm(list=ls()) #To clear the environment if needed
 d <- import("125289-FinalData_allExpts_forDatabrary.xlsx", setclass = "tbl_df")
 
+```
+
+#TN: i find it better to have different chunks for different phases of the code - for example for when you load packages and data you probably want to use include=false because you dont want any of it to print
+
+```{r tidying data}
+
 #Columns 7 through 9 have an independent variable embedded in the column name. To address this, we put "Triple or Pair," "Illusory or Embedded," and "Part" in one column (the key column, here named "stim_type"), and the values in a column called "look duration."
+
 td <- d %>%
   gather(key = "stim_type", value = "lookduration", 7:9)
 
+
+
 #The same embedding of the independent variable into the column name applies to the log-transformed version of the looking time values. So we use the gather function again to separate the categorical IV named in the column name from the column's values, which are log-transformed looking times. The "discard" column is labelled such because it is redundant with the "stim_type" column generated in the gather() function above.  
+
+
 td_ier <- td %>%
   gather(key = "discard", value = "log_lookduration", 7:9) %>%
-  select(-discard) %>%
+  select(-discard) #TN: THERE WAS A PIPE HERE THAT TOOK NOWHERE
+
+
 
 #Now the remaining mess that needs tidying is that the stim_type column does not actually tell us yet if the type of stimulus is a triplet or pair (ostensibly learned stimuli presented to the infant during the familiarization phase), or if it is illusory or embedded (novel stimuli not presented during familiarization phase). The type of stimulus used depends on the experiment number in column one. First, let's recode "Triplet_or_Pair_AvgLookDuration"" as "familiar," "Illusory_or_Embedded_AvgLookDuration" as "novel," and "Part_AvgLookDuration" as "transitional (part-sequence)"
 
@@ -36,12 +50,33 @@ td_iest <- td_ier %>%
     "novel" = "Illusory_or_Embedded_AvgLookDuration",
     "transitional" = "Part_AvgLookDuration"))
 
-Experiment1_results <- td_iest %>%
-  filter(Experiment==1) %>%
-  ggplot(aes(x = stim_type, y = lookduration)) +
-  geom_col()
+#TN: I think you could have compacted the three pipes above into one pipe, and that way you would have less code/cleaner code/fewer data frames in your workspace.. sth like this: 
 
-Experiment1_results
+td_tn <- d %>%
+  gather(key = "stim_type", value = "lookduration", 7:9)%>%
+  gather(key = "discard", value = "log_lookduration", 7:9) %>%
+  select(-discard)%>%
+  mutate(stim_type = fct_recode(stim_type,
+    "familiar" = "Triplet_or_Pair_AvgLookDuration",
+    "novel" = "Illusory_or_Embedded_AvgLookDuration",
+    "transitional" = "Part_AvgLookDuration"))
+```
+
+#results
+
+```{r rres}
+
+#TN: Coments on what you are trying to ilustrate with these plots would be useful. Labels clarifying the axis and a title for each plot would also be important. 
+
+#I am running into an error when I try to look at the plots, so I am oging to play with the code a bit to see if I can solve it (who knows, maybe this has sth to do my version of R)
+
+Experiment1_dat <- td_iest %>%
+  filter(Experiment==1)
+
+ggplot(Experiment1_dat, aes(x = stim_type, y = lookduration)) +
+geom_col()
+
+#Experiment1_results
 
 Experiment2_results <- td_iest %>%
   filter(Experiment==2) %>%
@@ -52,7 +87,12 @@ Experiment2_results
 
 #I would like to be able to create a variable called "stim_structure" that says that the familiar variable in Experiment 1 consists of triplets, and the novel variable in Experiment 1 are illusory sequences. I would like to do the same for Experiment 2: say that the novel variable in this case are embedded pairs, and that the familiar variable is a regular pair. I document several attempts to do this below to no avail (yet!)
 
+#TN: Could you be a little clearer on the above comment in terms of what you need to do to the data frame and the variables outside of specific concepts related to the research? I am not 100% sure I underdstand what your goal in this part is but I will do my best to look into it and give any suggestions that might be helpful. 
+
 #Next, we indicate the structure of the stimulus by taking the experiment number and stim_type into account:
+
+#TN: I am running into an error when I try to run this. I am not sure whether you can do an ifelse within another ifelse.. probably, for this it would be useful to use a for-loop, but I think that goes a but above and beyond what we learnt in class. 
+
 td_iestest <- td_iest %>%
   mutate(stim_structure = ifelse(Experiment == 1 & grepl("familiar", stim_type), "triplet",
     ifelse(Experiment == 1 & grepl("novel," stim_type), "illusory",
@@ -131,12 +171,14 @@ td_iest %>%
     ifelse(grepl("transitional", "stim_type"), "part-sequence")))))))
 
 #Attempt 7:
-td_iest %>%
+td_iest_7 <- td_iest %>%
   filter(stim_type == "familiar") %>%
   mutate(stim_structure =
     ifelse("Experiment" == 1, "triplet",
     ifelse("Experiment" == 2:4, "pair", "other")))
 #This worked, the problem is that it's now in its own data set without novel and part-sequence
+#TN: I saved it into a new data frame to be able to look at it . 
+
 
 td_iestest <- td_iest %>%
   mutate(stim_structure = 
