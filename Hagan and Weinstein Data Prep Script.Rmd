@@ -4,11 +4,18 @@ author: "Netanel Weinstein and Katherine Hagan"
 date: "November 14, 2018"
 output: html_document
 ---
+```{r comments}
+
+# Your introduction is excellent! I think it is very clear what you are interested in looking at, and I especially find the description of what results you would expect for the two contrasting models to be particularly helpful to a reader in a completely different area  of researh (like myself). 
+
+```
+
 Prior research suggests that 8 month-old infants track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (Saffran, Aslin, and Newport, 1996). A central debate in this regard relates to the level of abstraction at which infants' statstical learning occurs.  On the one hand, "transition-finding"" (also referred to as "statistical") models posit that infants' track regularities based on the likelihood that a specific unit of input (say, a single shape or syllable) will appear given another unit of input (another shape or syllable that typically precedes it). On the other hand, "chunking" (also referred to as "clustering") models argue that infants learn to discern statistically coherent units that become represented in memory in the form of "chunks." These two models make different predictions about the ways that infants will respond to novel (rule-abiding or not-rule-abiding) stimuli after being presented with five-minutes of patterned input during a familiarization phase.
 
 Some looking-time paradigms argue that infants will look longer at stimuli that  they are familiar with, while others posit that infants will look longer at stimuli that are novel. That means that the two paradigms make opposing predictions: increased looking time duration may indicate the stimulus is familiar. Or the opposite may be true: infants may look at a given stimulus longer because it is novel. 
 
 This data set (from Slone and Johnson, 2018) attempted to determine whether infant looking time supported the transition-finding model or the chunking model. It did so by presenting infants with patterned stimuli during a familiarization phase, and then presenting novel stimuli about which the two models (transition-finding and chunking) make contrasting predictions. 
+
 
 ```{r data}
 library(tidyverse)
@@ -17,7 +24,12 @@ library(here)
 library(forcats)
 
 rm(list=ls()) #To clear the environment if needed
-d <- import("125289-FinalData_allExpts_forDatabrary.xlsx", setclass = "tbl_df")
+
+###### Peer Review:  I used to do this too, but Daniel actually sent me a helpful link explaining why it's a bad idea to clear the environment at the beginning of every script: https://www.tidyverse.org/articles/2017/12/workflow-vs-script/.  If you start with an .rproj file (like you have here), then this shouldn't be necessary. You will be starting with a clean program at every startup. 
+
+d <- import(here("125289-FinalData_allExpts_forDatabrary.xlsx")) 
+
+##### Peer Review:  You loaded the `here` package, but then didn't use it. I added it! 
 
 #Columns 7 through 9 have an independent variable embedded in the column name. To address this, we put "Triple or Pair," "Illusory or Embedded," and "Part" in one column (the key column, here named "stim_type"), and the values in a column called "look duration."
 td <- d %>%
@@ -26,31 +38,131 @@ td <- d %>%
 #The same embedding of the independent variable into the column name applies to the log-transformed version of the looking time values. So we use the gather function again to separate the categorical IV named in the column name from the column's values, which are log-transformed looking times. The "discard" column is labelled such because it is redundant with the "stim_type" column generated in the gather() function above.  
 td_ier <- td %>%
   gather(key = "discard", value = "log_lookduration", 7:9) %>%
-  select(-discard) %>%
+  select(-discard) 
+
+###### Peer Review: I removed a pipe after the last chunk of code above. Created issues with running the code.
 
 #Now the remaining mess that needs tidying is that the stim_type column does not actually tell us yet if the type of stimulus is a triplet or pair (ostensibly learned stimuli presented to the infant during the familiarization phase), or if it is illusory or embedded (novel stimuli not presented during familiarization phase). The type of stimulus used depends on the experiment number in column one. First, let's recode "Triplet_or_Pair_AvgLookDuration"" as "familiar," "Illusory_or_Embedded_AvgLookDuration" as "novel," and "Part_AvgLookDuration" as "transitional (part-sequence)"
 
 td_iest <- td_ier %>%
   mutate(stim_type = fct_recode(stim_type,
-    "familiar" = "Triplet_or_Pair_AvgLookDuration",
-    "novel" = "Illusory_or_Embedded_AvgLookDuration",
-    "transitional" = "Part_AvgLookDuration"))
+                                "familiar" = "Triplet_or_Pair_AvgLookDuration",
+                                "novel" = "Illusory_or_Embedded_AvgLookDuration",
+                                "transitional" = "Part_AvgLookDuration"))
 
+###### Peer Review: I changed the formatting of your above mutate function so that it is easier to read. Be careful to follow the tab guidelines for your functions. I think it makes your code easier to follow and R Studio is pretty good about doing it correctly. If you're unsure about how many tabs something should be using you can always highlight an entire section of code and then use `cmd + I` or go to 'code' > 'reindent lines' at the top menu and r studio will format things nicely for you. 
+
+
+##### Peer Review: I like the way you broke up your code above to explain each step you were taking. However, in your final product I think it would make more sense to keep it all together and to keep extra unnecessary objects out of your global environment. I would recommend condensing things above like this :
+# td <- d %>%
+#   gather(key = "stim_type", value = "lookduration", 7:9) %>%
+#   gather(key = "discard", value = "log_lookduration", 7:9) %>%
+#   select(-discard) %>%
+#   mutate(Experiment = factor(Experiment),
+#          stim_type = fct_recode(stim_type,
+#                                 "familiar" = "Triplet_or_Pair_AvgLookDuration",
+#                                 "novel" = "Illusory_or_Embedded_AvgLookDuration",
+#                                 "transitional" = "Part_AvgLookDuration"))
+
+
+###### Peer Review: A theme that I really like for plots is `cowplot`. All you need to do is load the package at the beginning of your document or beforey you do any plotting, and it will automatically apply to your documents. There is also a Wes Anderson package with pretty colors for plots if you want to look at those! Then I just played around with your plots a little bit to make them pretty and show you what I like to do with my plots if you want to incorporate suggestions. 
+
+library(cowplot)
+library(wesanderson)
+options(scipen=999) # Turn off scientific notation
+pal <- wes_palette("Darjeeling1")
+
+# Changed your plot to be looking at average looking times, more informative I think?
 Experiment1_results <- td_iest %>%
-  filter(Experiment==1) %>%
-  ggplot(aes(x = stim_type, y = lookduration)) +
-  geom_col()
+  filter(Experiment == 1) %>%
+  group_by(stim_type) %>% 
+  summarize(mean_look_time = mean(lookduration)) %>% 
+  ggplot(aes(x = stim_type, y = mean_look_time, fill = stim_type)) +
+  geom_col() +
+  scale_fill_manual(values = pal) +
+  labs(x = "Stimulus Type",
+       y = "Average Looking Duration",
+       title = "Average Infant Looking Times",
+       subtitle = "Experiment 1") +
+  theme(legend.position = "none",
+        legend.title = element_blank(),
+        plot.subtitle = element_text(size = 11, hjust = 0, face = "italic", color = "black"),
+        plot.title = element_text(size = 15, hjust = 0))
 
 Experiment1_results
 
+
 Experiment2_results <- td_iest %>%
-  filter(Experiment==2) %>%
-  ggplot(aes(x = stim_type, y = lookduration)) +
-  geom_col()
+  filter(Experiment == 2) %>%
+  group_by(stim_type) %>% 
+  summarize(mean_look_time = mean(lookduration)) %>% 
+  ggplot(aes(x = stim_type, y = mean_look_time, fill = stim_type)) +
+  geom_col() +
+  scale_fill_manual(values = pal) +
+  labs(x = "Stimulus Type",
+       y = "Average Looking Duration",
+       title = "Average Infant Looking Times",
+       subtitle = "Experiment 2") +
+  theme(legend.position = "none",
+        legend.title = element_blank(),
+        plot.subtitle = element_text(size = 11, hjust = 0, face = "italic", color = "black"),
+        plot.title = element_text(size = 15, hjust = 0))
 
 Experiment2_results
 
 #I would like to be able to create a variable called "stim_structure" that says that the familiar variable in Experiment 1 consists of triplets, and the novel variable in Experiment 1 are illusory sequences. I would like to do the same for Experiment 2: say that the novel variable in this case are embedded pairs, and that the familiar variable is a regular pair. I document several attempts to do this below to no avail (yet!)
+
+##### Peer Review: Here is my first attmept. I've not used a for loop inside a pipe before and so I'm not sure why this wont work, but maybe it will give you some ideas?  
+td2 <- td_iest %>% 
+  mutate(stim_structure = stim_type) %>%
+  for (iRow in 1:length(Experiment)){
+    if (Experiment[iRow] == 1){
+      mutate(stim_structure = recode(stim_structure,
+                                     "familiar" = 'triplet',
+                                     "novel" = 'illusory',
+                                     "transitional" = 'part-sequence'))
+    } else if (Experiment[iRow] == 2){
+      mutate(stim_structure = recode(stim_structure,
+                                     "familiar" = 'pair',
+                                     "novel" = 'embedded',
+                                     "transitional" = 'part-sequence'))
+    } else {
+      mutate(stim_structure = NA)
+    }
+  }
+
+
+##### Peer Review: Here is my messier solution idea but I think this gives you what you want! 
+# First we recode for experiment 1 and 2 separately:
+  mutate(stim_structure = as.character(stim_type),
+         Experiment = factor(Experiment)) %>% 
+  filter(Experiment == 1) %>% 
+  mutate(stim_structure = recode(stim_structure,
+                                 "familiar" = 'triplet',
+                                 "novel" = 'illusory',
+                                 "transitional" = 'part-sequence'))
+
+
+td_exp2 <- td_iest %>% 
+  mutate(stim_structure = as.character(stim_type),
+         Experiment = factor(Experiment)) %>% 
+  filter(Experiment == 2) %>% 
+  mutate(stim_structure = recode(stim_structure,
+                                 "familiar" = 'pair',
+                                 "novel" = 'embedded',
+                                 "transitional" = 'part-sequence'))
+
+# We need experiments 3 and 4 too: 
+td_exp3_4 <- td_iest %>% 
+  mutate(stim_structure = as.character(stim_type),
+         Experiment = factor(Experiment)) %>% 
+  filter(Experiment == 3 | Experiment == 4) %>% 
+  mutate(stim_structure = NA)
+
+# Use Merge to put all three dataframes back together:
+td_iestest <- merge(td_exp1, td_exp2, all = TRUE) %>% 
+  merge(td_exp3_4, all = TRUE)
+
 
 #Next, we indicate the structure of the stimulus by taking the experiment number and stim_type into account:
 td_iestest <- td_iest %>%
