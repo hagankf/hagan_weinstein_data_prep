@@ -26,27 +26,28 @@ td <- d %>%
 #The same embedding of the independent variable into the column name applies to the log-transformed version of the looking time values. So we use the gather function again to separate the categorical IV named in the column name from the column's values, which are log-transformed looking times. The "discard" column is labelled such because it is redundant with the "stim_type" column generated in the gather() function above.  
 td_ier <- td %>%
   gather(key = "discard", value = "log_lookduration", 7:9) %>%
-  select(-discard) %>%
+  select(-discard) #%>% #I removed the %>% here as it causes your syntax to error -MSC
 
 #Now the remaining mess that needs tidying is that the stim_type column does not actually tell us yet if the type of stimulus is a triplet or pair (ostensibly learned stimuli presented to the infant during the familiarization phase), or if it is illusory or embedded (novel stimuli not presented during familiarization phase). The type of stimulus used depends on the experiment number in column one. First, let's recode "Triplet_or_Pair_AvgLookDuration"" as "familiar," "Illusory_or_Embedded_AvgLookDuration" as "novel," and "Part_AvgLookDuration" as "transitional (part-sequence)"
 
-td_iest <- td_ier %>%
+td_iest <- td_ier %>% #I like your names td_ier and td_iest
   mutate(stim_type = fct_recode(stim_type,
-    "familiar" = "Triplet_or_Pair_AvgLookDuration",
-    "novel" = "Illusory_or_Embedded_AvgLookDuration",
-    "transitional" = "Part_AvgLookDuration"))
+         "familiar" = "Triplet_or_Pair_AvgLookDuration",
+          "novel" = "Illusory_or_Embedded_AvgLookDuration",
+          "transitional" = "Part_AvgLookDuration")) #recommend using either snake case or camel case but not both for readability MSC
 
 Experiment1_results <- td_iest %>%
-  filter(Experiment==1) %>%
+  filter(Experiment == 1) %>% #added spacing; you could filter for experiment 1 and 2 and then facet wrap by experiment 
   ggplot(aes(x = stim_type, y = lookduration)) +
-  geom_col()
+  geom_col() + #could add a title to describe this visualization to the unfamiliar reader MSC
+ # facet_wrap(~Experiment) #added in a facet_wrap; I'm not sure I understand your research enough to know if this is valuable for comparing experiment 1 and 2
 
 Experiment1_results
 
 Experiment2_results <- td_iest %>%
-  filter(Experiment==2) %>%
+  filter(Experiment == 2) %>% #added in spacing around the ==
   ggplot(aes(x = stim_type, y = lookduration)) +
-  geom_col()
+  geom_col() #same as above, a title could help clarify the visualization MSC
 
 Experiment2_results
 
@@ -55,20 +56,22 @@ Experiment2_results
 #Next, we indicate the structure of the stimulus by taking the experiment number and stim_type into account:
 td_iestest <- td_iest %>%
   mutate(stim_structure = ifelse(Experiment == 1 & grepl("familiar", stim_type), "triplet",
-    ifelse(Experiment == 1 & grepl("novel," stim_type), "illusory",
+    ifelse(Experiment == 1 & grepl("novel", stim_type), "illusory", #moved comma outside "" in novel
     ifelse(Experiment == 1 & grepl("transitional", stim_type), "part-sequence",
     ifelse(Experiment == 2 & grepl("familiar", stim_type), "pair",
     ifelse(Experiment == 2 & grepl("novel", stim_type), "embedded",
     ifelse(Experiment == 2 & grepl("transitional", stim_type), "part-sequence")))))))
 
+
+
 #Attempt 1 
 td_iestest <- td_iest %>%
-  mutate(stim_structure = ifelse(Experiment = 1 & grepl("familiar", stim_type), "triplet",
-    ifelse(Experiment = 1 & grepl("novel,"), "illusory",
-    ifelse(Experiment = 1 & grepl("transitional", stim_type), "part-sequence",
-    ifelse(Experiment = 2 & grepl("familiar", stim_type), "pair",
-    ifelse(Experiment = 2 & grepl("novel", stim_type), "embedded",
-    ifelse(Experiment = 2 & grepl("transitional", stim_type), "part-sequence")))))))
+  mutate(stim_structure = if_else(Experiment = 1 & grepl("familiar", stim_type), "triplet",
+    if_else(Experiment = 1 & grepl("novel,"), "illusory",
+    if_else(Experiment = 1 & grepl("transitional", stim_type), "part-sequence",
+    if_else(Experiment = 2 & grepl("familiar", stim_type), "pair",
+    if_else(Experiment = 2 & grepl("novel", stim_type), "embedded",
+    if_else(Experiment = 2 & grepl("transitional", stim_type), "part-sequence")))))))
     
 #Attempt 2:
 td_iestest <- td_iest %>%
@@ -78,6 +81,9 @@ td_iestest <- td_iest %>%
     ifelse(Experiment == 2 & grepl("familiar", stim_type), "pair",
     ifelse(Experiment == 2 & grepl("novel", stim_type), "embedded",
     ifelse(Experiment == 2 & grepl("transitional", stim_type), "part-sequence", "NA")))))))
+
+td_iestest <- td_iest %>%
+  mutatat(stim_structure = if_else())
 
 #Attempt 3: 
 td_iestest <- td_iest %>%
@@ -124,7 +130,7 @@ td_iest %>%
   filter("Experiment" == 1) %>%
   mutate(stim_structure =
     ifelse(grepl("familiar", "stim_type"), "triplet",
-    ifelse(grepl("novel," "stim_type"), "illusory",
+    ifelse(grepl("novel", "stim_type"), "illusory",
     ifelse(grepl("transitional", "stim_type"), "part-sequence",
     ifelse(grepl("familiar", "stim_type"), "pair",
     ifelse(grepl("novel", "stim_type"), "embedded",
@@ -166,8 +172,47 @@ td_iestest
     ifelse(Experiment == 2 & stim_type == novel, "embedded",
     ifelse(Experiment == 2 & stim_type == transitional, "part-sequence")))))))
 
-
-
-
-
 ```
+        
+```{r stim_structure}    
+#MSC very inefficient attempt at helping create this variable 
+td_iestest <- td_iest %>%
+    filter(Experiment == 1) %>%
+    filter(stim_type == "familiar") %>%
+    mutate(stim_structure = "triplet")
+
+td_2 <- td_iest %>%
+    filter(Experiment == 1) %>%
+    filter(stim_type == "novel") %>%
+    mutate(stim_structure = "illusory")
+
+td_3 <- td_iest %>%
+    filter(Experiment == 1) %>%
+    filter(stim_type == "transitional")
+    mutate(stim_structure = "part-sequence")
+    
+new <- full_join(td_iestest, td_2)
+new2 <- full_join(new, td_3)
+
+td4 <- td_iest %>%
+        filter(Experiment == 2) %>%
+        filter(stim_type == "familiar") %>%
+        mutate(stim_structure = "pair")
+
+td5 <- td_iest %>%
+        filter(Experiment == 2) %>%
+        filter(stim_type == "novel") %>%
+        mutate(stim_strucutre = "embedded")
+
+td6 <- td_iest %>%
+        filter(Experiment == 2) %>%
+        filter(stim_type == "transitional") %>%
+        mutate(stim_structure = "part-sequence")
+
+new3 <- full_join(new2, td4)
+new4 <- full_join(new3, td5)
+final <- full_join(new4, td6)
+```
+
+
+
