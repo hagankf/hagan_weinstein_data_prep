@@ -1,4 +1,4 @@
-@article{saffran1996statistical,
+@article{saffran1996,
   title={Statistical learning by 8-month-old infants},
   author={Saffran, Jenny R and Aslin, Richard N and Newport, Elissa L},
   journal={Science},
