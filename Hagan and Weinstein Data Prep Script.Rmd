@@ -40,7 +40,7 @@ td_iest <- td_ier %>% #I like your names td_ier and td_iest
 Experiment1_results <- td_iest %>%
   filter(Experiment == 1) %>% #added spacing; you could filter for experiment 1 and 2 and then facet wrap by experiment 
   ggplot(aes(x = stim_type, y = lookduration)) +
-  geom_col() + #could add a title to describe this visualization to the unfamiliar reader MSC
+  geom_col() #+ #could add a title to describe this visualization to the unfamiliar reader MSC
  # facet_wrap(~Experiment) #added in a facet_wrap; I'm not sure I understand your research enough to know if this is valuable for comparing experiment 1 and 2
 
 Experiment1_results
@@ -215,5 +215,21 @@ new4 <- full_join(new3, td5)
 final <- full_join(new4, td6)
 ```
 
+```{r table and graphs}
 
+Experiment1_results <- td_iest %>%
+  filter(Experiment == 1) %>% 
+  ggplot(aes(x = stim_type, y = lookduration, fill = stim_type)) +
+  geom_bar(stat = "identity") + 
+  ggtitle("Mean looking duration to each of the three stimuli types in Experiment 1") 
+
+Experiment1_results
+
+table <- 
+  td_iest %>%
+  filter(Experiment == 1) %>%
+  group_by(stim_type) %>%
+  summarize(mean_looking_time = mean(log_lookduration), sd_looking_time = sd(log_lookduration))
+
+```
 
