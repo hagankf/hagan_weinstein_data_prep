@@ -271,9 +271,19 @@ Experiment1_results
 t_test <- 
   tidy_data_final %>%
   filter(Experiment == 1) %>%
-  filter(stim != part) %>%
-  t.test(data = tidy_data_final, log ~ stim, paired = TRUE)
-
+  filter(stim != "part") %>%
+  t.test(data = ., log ~ stim, paired = TRUE)
+t_test
+distributions <- 
+  tidy_data_final %>%
+  filter(stim == "trippair") %>%
+  ggplot() +
+    geom_histogram(x = log)
+distributions  
+  
+  
+  
+  
 <<<<<<< HEAD
 =======
 
