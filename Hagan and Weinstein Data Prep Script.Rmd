@@ -274,16 +274,16 @@ t_test <-
   filter(stim != "part") %>%
   t.test(data = ., log ~ stim, paired = TRUE)
 t_test
-distributions <- 
+
+
+  
+distributions <-
   tidy_data_final %>%
-  filter(stim == "trippair") %>%
   ggplot() +
-    geom_histogram(x = log)
-distributions  
-  
-  
-  
-  
+  geom_histogram(aes(x = raw)) +
+  facet_wrap(~stim)
+distributions
+
 <<<<<<< HEAD
 =======
 
