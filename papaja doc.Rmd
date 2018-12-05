@@ -61,7 +61,7 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 # Introduction
 Human infants are exposed to a continuous stream of sensory input.  Yet over the course of development, infants come to experience this continuous stream of sights, sounds, smells and tastes as coherent, predictable and bounded units of meaning.  The process by which this occurs has been the topic of a large amount of research and is of interest not only to developmental psychologists but to engineers as well, particularly those working in the field of computer-human interface technological development.  The emerging consensus from this body of work is that, rather than passively observing their environment, infants'  track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (@Saffran96).
 
-Thus, for example, infants' 
+In order to study this process in experimental settings, researchers often present infants' with sequences of stimuli for a period of time and then measure the extent to which infants' have extracted the statsitical properties of the sequence.  For example, infants would be repeatedly exposed to the following sequence: "babagababababagababa babagababababagababa"
 
 
 # Methods
