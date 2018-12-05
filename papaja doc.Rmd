@@ -71,27 +71,48 @@ The first category of stimuli, termed "Triplet test trials"" presented infants' 
 
 The critical question addressed in study 1 relates to the different predictions the two theoretical approaches make regarding infant looking behavior between the first two categories ("triplet" and "illusory triplet" trials).  The researchers reasoned that if infant statistical learning occurs only at the level of transitional probabilities ("statistical" models), infants' should not distinguish between "triplet" and "illusory triplet" trials since the transitional probablilities between the components of these units were identical, as established by familiarization.  Subsequently, looking time for these two categories of stimuli should be the same.  If, on the other hand, statistical learning occurs at the level of "chunks" and not just at the level of transitional probabilities, infants' should in fact distinguish between "triplet" and "illusory triplet" trials since only "triplet" trials had previously occured.
 
-While the data indicate that looking time did in fact differ between the "triplet" and "illusory triplet" trials, lending support to the chunking theory, the direction of this result ran contra to the logic of the researchers.  Specifically, if infants are indeed tracking "chunks" or whole units rather than merely transitional probabilities, "illusory triplet" trials should appear relatively novel to infants because they were never seen before.  This should ilicit longer, rather than shorter, looking time.  In reality, the opposite occured and infants looked longer at triplet trials.  While one could argue that this longer duration reflects a "familiarity preference" and is thus concordant with the researcher's logic, it would have been best if the authors had addressed this issue explicitly.  
-
 
 
 # Methods
-We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study. <!-- 21-word solution (Simmons, Nelson & Simonsohn, 2012; retrieved from http://ssrn.com/abstract=2160588) -->
-
-## Participants
-
-## Material
-
-## Procedure
-
-## Data analysis
-We used `r cite_r("r-references.bib")` for all our analyses.
 
 
 # Results
 
-# Discussion
+We used `r cite_r("Hagan-Weinstein.bib")` for all our analyses.  First, we created a visual representation of the distribution of the raw scores for looking duration across all studies and conditions:
+```{r distribution, echo = FALSE}
+distributions <-
+  tidy_data_final %>%
+  ggplot() +
+  geom_histogram(aes(x = raw)) +
+  facet_wrap(~stim)
+distributions
 
+```
+As described by the authors, the distributions of looking time were all negatively skewed.  Therefore, we used the log transformations of each infant’s mean looking duration to each test type for all further analyses.  Since, as discussed, our primary interest was in comparing looking time between between "triplet" and "illusory triplet" trials.  To reiterate, this comparison is critical since the transitional probablilities between the components of these units were identical, yet only "triplet" stimuli had actually been presented to infants during familiarization.  If infants' looking time differs between these two trials, we can argue that infants' statsitical learning is not limited to tracking transitional probabilities but rather tracks whole units ("chunks") as well.  In order to determine whether looking time did indeed differ between these two conditions ("triplet" and "illusory triplet") we ran a t test 
+
+```{r ttest, echo = FALSE}
+t_test <- 
+  tidy_data_final %>%
+  filter(Experiment == 1) %>%
+  filter(stim != "part") %>%
+  t.test(data = ., log ~ stim, paired = TRUE)
+t_test
+
+```
+To better illustrate the difference in mean looking time observed between the conditions, we reproduced a bar plot created by the authors:
+
+```{r study1, echo = FALSE}
+Experiment1_results <- tidy %>%
+  filter(Experiment == 1) %>% 
+  ggplot(aes(x = stim, y = log, fill = stim)) +
+  geom_bar(stat = "identity") + 
+  ggtitle("Mean looking duration to each of the three stimuli types in Experiment 1") 
+Experiment1_results
+
+```
+
+# Discussion
+While the data indicate that looking time did in fact differ between the "triplet" and "illusory triplet" trials, lending support to the chunking theory, the direction of this result ran contra to the logic of the researchers.  Specifically, if infants are indeed tracking "chunks" or whole units rather than merely transitional probabilities, "illusory triplet" trials should appear relatively novel to infants because they were never seen before.  This should ilicit longer, rather than shorter, looking time.  In reality, the opposite occured and infants looked longer at triplet trials.  While one could argue that this longer duration reflects a "familiarity preference" and is thus concordant with the researcher's logic, these findings illustrate the difficulty in infering cognitive processes from looking behavior.
 
 \newpage
 
