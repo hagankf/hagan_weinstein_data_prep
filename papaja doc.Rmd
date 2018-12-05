@@ -1,0 +1,97 @@
+---
+title             : "Infants' Representation of Visual Sequences"
+shorttitle        : "Final Project"
+
+author: 
+  - name          : "Katherine Hagan"
+    affiliation   : "University of Oregon"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Postal address"
+    email         : "katherine.f.hagan@gmail.com"
+  - name          : "Netanel Weinstein"
+    affiliation   : "1,2"
+
+affiliation:
+  - id            : "1"
+    institution   : "University of Oregon"
+  - id            : "2"
+    institution   : "University of Oregon"
+
+authornote: |
+  Department of psychology 
+
+  Enter author note here.
+
+abstract: |
+
+Prior research suggests that 8 month-old infants track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (@Saffran96). A central debate in this regard relates to the level of abstraction at which infants' statstical learning occurs.  On the one hand, "transition-finding"" (also referred to as "statistical") models posit that infants' track regularities based on the likelihood that a specific unit of input (say, a single shape or syllable) will appear given another unit of input (another shape or syllable that typically precedes it). On the other hand, "chunking" (also referred to as "clustering") models argue that infants learn to discern statistically coherent units that become represented in memory in the form of "chunks." These two models make different predictions about the ways that infants will respond to novel (rule-abiding or not-rule-abiding) stimuli after being presented with five-minutes of patterned input during a familiarization phase.  Results from this research program indicate that infants' are sensitive to statistically co-occuring chuncks rather than merely to transitional probabilities between lower-level units.  These findings may shed light on the process of lexical acuqisition in infancy since the representation of statistically co-occuring visual chuncks demonstrated here may be analagous to the representation of words.
+
+
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "Statistical learning", "transitional probablity", "Chuncking", "Infants"
+wordcount         : "X"
+
+bibliography      : ["Hagan-Weinstein.bib"]
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+# Introduction
+Human infants are exposed to a continuous stream of sensory input.  Yet over the course of development, infants come to experience this continuous stream of sights, sounds, smells and tastes as coherent, predictable and bounded units of meaning.  The process by which this occurs has been the topic of a large amount of research and is of interest not only to developmental psychologists but to engineers as well, particularly those working in the field of computer-human interface technological development.  The emerging consensus from this body of work is that, rather than passively observing their environment, infants'  track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (@Saffran96).
+
+Thus, for example, infants' 
+
+
+# Methods
+We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study. <!-- 21-word solution (Simmons, Nelson & Simonsohn, 2012; retrieved from http://ssrn.com/abstract=2160588) -->
+
+## Participants
+
+## Material
+
+## Procedure
+
+## Data analysis
+We used `r cite_r("r-references.bib")` for all our analyses.
+
+
+# Results
+
+# Discussion
+
+
+\newpage
+
+# References
+```{r create_r-references}
+r_refs(file = "Hagan-Weinstein.bib")
+```
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id = "refs"></div>
+\endgroup
