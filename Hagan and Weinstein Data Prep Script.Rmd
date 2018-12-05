@@ -17,12 +17,35 @@ library(rio)
 library(here)
 library(forcats)
 
-rm(list=ls()) #To clear the environment if needed
-d <- import("125289-FinalData_allExpts_forDatabrary.xlsx", setclass = "tbl_df")
+d <- import("125289-FinalData_allExpts_forDatabrary.xlsx", 
+            setclass = "tbl_df")
+
+
+d %>% 
+  rename(trippair_raw = Triplet_or_Pair_AvgLookDuration,
+         illembed_raw = Illusory_or_Embedded_AvgLookDuration,
+         part_raw     = Part_AvgLookDuration,
+         trippair_log = Log_Triplet_or_Pair_AvgLookDuration,
+         illembed_log = Log_Illusory_or_Embedded_AvgLookDuration,
+         part_log     = Log_Part_AvgLookDuration) %>% 
+  gather(var, duration, 
+         trippair_raw, illembed_raw, part_raw, trippair_log, illembed_log, part_log) %>% 
+  separate(var, c("stim", "scale")) %>% 
+  spread(scale, duration) %>% 
+  group_by(Experiment, stim) %>% 
+  summarize(mean_log_looking_time = mean(log), 
+            sd_log_looking_time = sd(log),
+            mean_raw_looking_time = mean(raw),
+            sd_raw_looking_time = sd(raw))
+
 
 #Columns 7 through 9 have an independent variable embedded in the column name. To address this, we put "Triple or Pair," "Illusory or Embedded," and "Part" in one column (the key column, here named "stim_type"), and the values in a column called "look duration."
 td <- d %>%
   gather(key = "stim_type", value = "lookduration", 7:9)
+View(d)
+d %>% 
+  select(Triplet_or_Pair_AvgLookDuration, Log_Triplet_or_Pair_AvgLookDuration) %>% 
+  mutate(log = log(Triplet_or_Pair_AvgLookDuration))
 
 #The same embedding of the independent variable into the column name applies to the log-transformed version of the looking time values. So we use the gather function again to separate the categorical IV named in the column name from the column's values, which are log-transformed looking times. The "discard" column is labelled such because it is redundant with the "stim_type" column generated in the gather() function above.  
 td_ier <- td %>%
@@ -244,6 +267,19 @@ Experiment1_results <- tidy %>%
 
 Experiment1_results
 
+
+t_test <- 
+  tidy_data_final %>%
+  filter(Experiment == 1) %>%
+  filter(stim != part) %>%
+  t.test(data = tidy_data_final, log ~ stim, paired = TRUE)
+
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 48324a65e2af40a97f5cd8614ca463fd1c0c2617
 
 ```
 
