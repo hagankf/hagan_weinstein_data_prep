@@ -68,21 +68,31 @@ distributions
 Therefore, we used the log transformations of each infant’s mean looking duration to each test type for all further analyses.  As discussed, our primary interest was in comparing looking time between between "triplet" and "illusory triplet" trials.  To reiterate, this comparison is critical since the transitional probablilities between the components of these units were identical, yet only "triplet" stimuli had actually been presented to infants during familiarization.  If infants' looking time differs between these two trials, we can argue that infants' statsitical learning is not limited to tracking transitional probabilities but rather tracks whole units ("chunks") as well.  We ran a two-tailed t-test In order to determine whether looking time did indeed differ between these two conditions ("triplet" and "illusory triplet").
 
 ```{r ttest, echo = FALSE, include=FALSE}
+library(knitr)
 t_test <- 
   tidy_data_final %>%
   filter(Experiment == 1) %>%
   filter(stim != "part") %>%
   t.test(data = ., log ~ stim, paired = TRUE)
 
+table <- 
+  tidy_data_final %>%
+  group_by(Experiment, stim) %>% 
+  summarize(mean_log_looking_time = mean(log), 
+            sd_log_looking_time = sd(log),
+            mean_raw_looking_time = mean(raw),
+            sd_raw_looking_time = sd(raw))
+kable(table)
+
 ```
 
-Results indicate that there was a significant difference between these two condtions `r apa_print(t_test)$statistic`.  Specifically, infants' in the triplet trials looked significantly longer (M = `r table()$mean_log_looking_time[3]`, SD = `r table()$sd_log_looking_time[3]`) than those in the illusory triplet trials (M =`r table()$mean_log_looking_time[1]`, SD = `r table()$sd_log_looking_time[1]`).
+Results indicate that there was a significant difference between these two condtions `r {apa_print(t_test)$statistic}`.  Specifically, infants' in the triplet trials looked significantly longer (M = `r {table$mean_log_looking_time[3]}`, SD = `r {table$sd_log_looking_time[3]}`) than those in the illusory triplet trials (M =`r {table$mean_log_looking_time[1]}`, SD = `r {table$sd_log_looking_time[1]}`).
 
 
 These data, along with the summary data from the other three studies are summarized in the following table:
 
 ```{r table, echo = FALSE}
-library(knitr)
+
 table <- 
   tidy_data_final %>%
   group_by(Experiment, stim) %>% 
