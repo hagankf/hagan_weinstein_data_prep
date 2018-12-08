@@ -1,13 +1,13 @@
 ---
-title             : "Infants' Representation of Visual Sequences"
-shorttitle        : "Final Project"
+title             : "Infants' Representation of Visual Sequences: Evidence in Support of Chunking Model of Learning"
+shorttitle        : "Infants' Representation of Visual Sequences"
 
 author: 
   - name          : "Katherine Hagan"
     affiliation   : "University of Oregon"
     corresponding : yes    # Define only one corresponding author
     address       : "Postal address"
-    email         : "katherine.f.hagan@gmail.com"
+    email         : "khagan@uoregon.edu"
   - name          : "Netanel Weinstein"
     affiliation   : "1,2"
 
@@ -18,15 +18,15 @@ affiliation:
     institution   : "University of Oregon"
 
 authornote: |
-  Department of psychology 
+  Department of Psychology 
 
-  Enter author note here.
+  Authors are doctoral students in Clinical and Developmental Psychology with no conflicts of interest to report.
 
 abstract: |
 
-Prior research suggests that 8 month-old infants track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (@Saffran1996). A central debate in this regard relates to the level of abstraction at which infants' statstical learning occurs.  On the one hand, "transition-finding"" (also referred to as "statistical") models posit that infants' track regularities based on the likelihood that a specific unit of input (say, a single shape or syllable) will appear given another unit of input (another shape or syllable that typically precedes it). On the other hand, "chunking" (also referred to as "clustering") models argue that infants learn to discern statistically coherent units that become represented in memory in the form of "chunks." These two models make different predictions about the ways that infants will respond to novel (rule-abiding or not-rule-abiding) stimuli after being presented with five-minutes of patterned input during a familiarization phase.  Results from this research program indicate that infants' are sensitive to statistically co-occuring chuncks rather than merely to transitional probabilities between lower-level units.  These findings may shed light on the process of lexical acuqisition in infancy since the representation of statistically co-occuring visual chunks demonstrated here may be analagous to the representation of words.
+  Prior research suggests that 8 month-old infants track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (@Saffran1996). A central debate in this regard relates to the level of abstraction at which infants' statistical learning occurs. On the one hand, "transition-finding" (also referred to as "statistical") models posit that infants track regularities based on the likelihood that a specific unit of input (say, a single shape or syllable) will appear given another unit of input (another shape or syllable that typically precedes it). On the other hand, "chunking" (also referred to as "clustering") models argue that infants learn to discern statistically coherent units that become represented in memory in the form of "chunks." These two models make different predictions about the ways that infants will respond to a sample of (rule-abiding or not-rule-abiding) stimuli after being presented with five-minutes of patterned input during a familiarization phase. Results from this research program indicate that infants are sensitive to statistically co-occurring chunks rather than merely to transitional probabilities between lower-level units. These findings may shed light on the process of lexical acquisition in infancy since the representation of statistically co-occurring visual chunks demonstrated here may be analogous to the representation of words.
 
-keywords          : "Statistical learning", "transitional probablity", "Chuncking", "Infants"
+keywords          : "Statistical learning, transitional probability, chunking, infants"
 wordcount         : "X"
 
 bibliography      : ["Hagan-Weinstein.bib"]
@@ -45,64 +45,94 @@ output            : papaja::apa6_pdf
 ---
 
 ```{r setup, include = FALSE}
-library("papaja")
+library(papaja)
+library(tidyverse)
+library(here)
+library(rio)
+library(knitr)
+library(pander)
+library(wesanderson)
+panderOptions('digits', 2)
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+
+options(scipen=999) #To turn off scientific notation
 ```
 
-```{r analysis-preferences}
+```{r analysis-preferences, include = FALSE}
 # Seed for random number generation
 set.seed(42)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 ```
 
 # Introduction
-Human infants are exposed to a continuous stream of sensory input.  Yet over the course of development, infants come to experience this continuous stream of sights, sounds, smells and tastes as coherent, predictable and bounded units of meaning(@saffran2018).  The process by which this occurs has been the topic of a large amount of research and is of interest not only to developmental psychologists but to engineers as well, particularly those working in the field of computer-human interface technological development(@wu2015).  The emerging consensus from this body of work is that, rather than passively observing their environment, infants'  track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (@Saffran1996).
+Human infants are exposed to a continuous stream of sensory input. Yet over the course of development, infants come to experience this continuous stream of sights, sounds, smells and tastes as coherent, predictable and bounded units of meaning(@saffran2018).  The process by which this occurs has been the topic of a large amount of research and is of interest not only to developmental psychologists but to engineers as well, particularly those working in the field of computer-human interface technological development(@wu2015).  The emerging consensus from this body of work is that, rather than passively observing their environment, infants track statistical regularities in their perceptual environment and come to expect these regularities to re-occur during subsequent exposure (@Saffran1996).
 
-In order to study this process in experimental settings, researchers often present infants' with sequences of stimuli for a period of time and then measure the extent to which infants' have extracted the statsitical properties of the sequence. One way in which this can be assessed is via infants looking duration at subsequent stimuli that is either consistent or inconsistent with the prior statistical pattern.  Differential looking patterns are thus argued to reflect underlying statistical expectation.  For example, if infants have indeed tracked the statistical pattern of the initial stimuli, researchers might predict that they would look longer at subsequent stimuli that is inconsistent with the initial statistical pattern.  This prolonged looking time is believed to be the behavioral signature of a VOE (violation of expectation) - an expectation formed via statistical learning.  If, on the the other hand, looking time does not vary between subsequent stimuli that are consistent and inconsistent with the initial stimuli, researchers cannot conclude that statistical learning has occured.
+In order to study this process in experimental settings, researchers often present infants with sequences of stimuli for a period of time (constituting a familiarization phase) and then measure the extent to which infants have extracted the statistical properties of the sequence. One way in which this can be assessed is via infants' looking duration at stimuli that is either consistent or inconsistent with the statistical pattern of stimuli presented during the familiarization phase.  Differential looking patterns are thus argued to reflect underlying, learned, statistically-based expectations. For example, if infants have indeed tracked the statistical pattern of the initial stimuli, researchers might predict that they would look longer at subsequent stimuli that is inconsistent with the initial statistical pattern. This prolonged looking time is believed to be the behavioral signature of a VOE (violation of expectation), that is, an expectation formed via statistical learning. If, on the the other hand, looking time does not vary between subsequent stimuli that are consistent and inconsistent with the initial stimuli, researchers cannot conclude that statistical learning (i.e., apprehension of the statistical properties of the initial, familiar stimuli) has occurred. A related but contrasting prediction concerning infant looking time is that infants will actually look longer at familiar stimuli than at novel (non-rule-abiding), ostensibly because they hold a preference for the familiar stimuli. In either case, a difference in looking time between familiar or rule-abiding stimuli and novel or non-rule-abiding stimuli indexes either a preference for the familiar stimuli or a violation of expectation on viewing the novel stimuli. While the direction of this difference in looking time depends on whether the infant is expected to look longer at familiar or novel stimuli, developmental psychologists nevertheless regard a difference in looking time as indicating infants' ability to distinguish between familiar and novel input. 
 
-The central question motivating the research in the present article relates to the level of abstraction at which infants' statistical learning occurs.  On the one hand, "transition-finding"" (also referred to as "statistical") models argue that infants' track regularities simply based on the likelihood that a specific unit of input (say, a single shape or syllable) will appear given another unit of input (another shape or syllable that typically precedes it). On the other hand, "chunking" (also referred to as "clustering") models argue that infants learn to discern statistically coherent units that become represented in memory in the form of "chunks."  
+The present paper made use of publicly available data from Slone and Johnson (2018) to reproduce these authors' analysis and examine their findings. The central question motivating Slone and Johnson's (2018) experiment relates to the level of abstraction at which infants' statistical learning occurs.  On the one hand, "transition-finding"" (also referred to as "statistical") models argue that infants track regularities simply based on the likelihood that a specific unit of input (say, a single shape or syllable) will appear given another unit of input (another shape or syllable that typically precedes it). On the other hand, "chunking" (also referred to as "clustering") models argue that infants learn to discern statistically coherent units that become represented in memory in the form of "chunks"(@Slone2018)  
 
-In order to discern between these two models, infants in study 1 were first familiarized with a sequence of three randomly ordered units: two shape triplets (e.g., triplet 1: red circle, blue square, orange diamond; triplet 2: lime green plus, red circle, orange diamond), and one shape pair (e.g., blue square, yellow triangle).  The purpose of this familiarization is to present the "initial stimuli" discussed above which presents infants' with an opportunity to track statistical regularities.    After the familiarization period, infants were presented with three different categories of stimuli and looking time between these categories was compared.  
+In order to discern between these two models, infants in Study 1 were first familiarized with a sequence of three randomly ordered units: two shape triplets (e.g., triplet 1: red circle, blue square, orange diamond; triplet 2: lime green plus, red circle, orange diamond), and one shape pair (e.g., blue square, yellow triangle). The purpose of this familiarization is to present the "initial stimuli" discussed above, which presents infants with an opportunity to track and apprehend statistical regularities. After the familiarization period, infants were presented with three different categories of stimuli and looking time between these categories was compared.  
 
-The first category of stimuli, termed "Triplet test trials"" presented infants' with the one of the same triplets presented during familiarization (e.g., red circle, blue square, orange diamond).  The second category of stimuli, termed "Illusory triplet test trials"" presented a three-shape sequence that was never seen in its entirety during familiarization, but which had the same transitional probabilities as triplets that were seen during familiarization.  Thus, the first two categories were matched in terms of transitional probabilities as established by familiarization but differed in whether or not they were actually seen as a unit during familiarization.  The third category of stimuli, termed "Part-sequence test trials" presented the last shape of a triplet followed by the pair from familiarization (e.g., orange diamond, blue square, yellow triangle). Thus, stimuli from this category had lower internal transitional probabilities compared to the other two categories. 
+The first category of stimuli, termed "triplet test trials," presented infants' with the one of the same triplets presented during familiarization (e.g., red circle, blue square, orange diamond). The second category of stimuli, termed "illusory triplet test trials," presented a three-shape sequence that was never seen in its entirety during familiarization, but which had the same transitional (inter-item) probabilities as triplets that were seen during familiarization.  Thus, the first two categories were matched in terms of transitional probabilities as established by familiarization but differed in whether or not they were actually seen as a unit during familiarization. The third category of stimuli, termed "part-sequence test trials" presented the last shape of a triplet followed by the pair from familiarization (e.g., orange diamond, blue square, yellow triangle). Thus, stimuli from this category had lower internal transitional probabilities compared to the other two categories. 
 
-The critical question addressed in study 1 relates to the different predictions the two theoretical approaches make regarding infant looking behavior between the first two categories ("triplet" and "illusory triplet" trials).  The researchers reasoned that if infant statistical learning occurs only at the level of transitional probabilities ("statistical" models), infants' should not distinguish between "triplet" and "illusory triplet" trials since the transitional probablilities between the components of these units were identical, as established by familiarization.  Subsequently, looking time for these two categories of stimuli should be the same.  If, on the other hand, statistical learning occurs at the level of "chunks" and not just at the level of transitional probabilities, infants' should in fact distinguish between "triplet" and "illusory triplet" trials since only "triplet" trials had previously occured.
-
-
+The critical question addressed in Study 1 relates to the different predictions the two theoretical approaches (the "transition-finding" model and the "chunking" model) make regarding infant looking behavior between the first two categories ("triplet" and "illusory triplet" trials).  The researchers reasoned that if infant statistical learning occurs only at the level of transitional probabilities ("statistical" models), infants should not distinguish between "triplet" and "illusory triplet" trials, since the transitional probablilities between the components of these units were identical, as established by familiarization. Subsequently, looking time for these two categories of stimuli should be the same. If, on the other hand, statistical learning occurs at the level of "chunks" and not just at the level of transitional probabilities, infants should in fact distinguish between "triplet" and "illusory triplet" trials since only "triplet" trials represent previously presented (and therefore recognizable) stimuli, and illusory triplets, per the chunking model, will have no representation in infant memory that is comparable to the representation of the already-present triplets.
 
 # Methods
 
+As discussed by (@Slone2018), Eighteen healthy full-term 8-month-olds (14 females; M age 7 months 24 days, range = 6;28–8;17) were tested with a familiarization paradigm.  Stimuli consisted of a five-location spatial array and five colored shapes.  The familiarization sequence consisted of a continuous sequence of three randomly ordered units: two shape triplets (e.g., triplet 1: red circle, blue square, orange diamond; triplet 2: lime green plus, red circle, orange diamond), and one shape pair (e.g., blue square, yellow triangle). 
+Following the familiarization sequence,infants were presented with 3 different types of stimuli.  For our purposes, we will focus on the first two.  The first category of stimuli, termed "Triplet test trials"" presented infants' with the one of the same triplets presented during familiarization (e.g., red circle, blue square, orange diamond).  The second category of stimuli, termed "Illusory triplet test trials"" presented a three-shape sequence that was never seen in its entirety during familiarization, but which had the same transitional probabilities as triplets that were seen during familiarization.  Thus, the first two categories were matched in terms of transitional probabilities as established by familiarization but differed in whether or not they were actually seen as a unit during familiarization.
+Since our critical question relates to infant looking behavior between "triplet" and "illusory triplet" trials, we ran a two-tailed t-test to determine whether there was a statistically significant difference in looking time between these two trial types.
 
 # Results
 
-We used `r cite_r("Hagan-Weinstein.bib")` for all our analyses.  First, we created a visual representation of the distribution of the raw scores for looking duration across all studies and conditions:
-```{r distribution, echo = FALSE}
+We used `r cite_r("Hagan-Weinstein.bib")` for all our analyses.
+```{r import and tidy, echo = FALSE, include = FALSE}
+d <- import("125289-FinalData_allExpts_forDatabrary.xlsx", 
+            setclass = "tbl_df")
+
+#The columns named "Triplet_or_PairAvgLookDuration" "Illusory_or_EmbeddedAvgLookDuration," and "Part_AvgLookDuration" have an independent variable embedded in the column name. The column names also combine CamelCase and snake_case. To address the latter issue, we first renamed these "familiar, novel, and transitional." We made comparable changes to the names of the columns that referred to logged looking times for these stimulus types. The above-mentioned embedding of the independent variable into the column name applies to the log-transformed version of the looking time values as well. After renaming the columns, we use the gather function to separate the categorical IV named in the column name from the column's values, which are either raw looking times or log-transformed looking times. The gather function does this by taking all of item variables and separating them into two variables: var and duration. The separate function than separates stim types in the "var" column from scale in this same "var" column 
+
+tidy_data_final <- d %>% 
+  rename(familiar_raw = Triplet_or_Pair_AvgLookDuration,
+         novel_raw = Illusory_or_Embedded_AvgLookDuration,
+         transitional_raw = Part_AvgLookDuration,
+         familiar_log = Log_Triplet_or_Pair_AvgLookDuration,
+         novel_log = Log_Illusory_or_Embedded_AvgLookDuration,
+         transitional_log = Log_Part_AvgLookDuration) %>% 
+  gather(var, duration, 
+         familiar_raw, novel_raw, transitional_raw, familiar_log, novel_log, transitional_log) %>% 
+  separate(var, c("stim", "scale")) %>% 
+  spread(scale, duration) 
+```
+First, we created a visual representation of the distribution of the raw scores for looking duration across all studies and conditions. A histogram corroborated the authors' report that the distributions of looking-time were skewed for all three stimulus types:
+```{r histogram, echo = FALSE, message = FALSE, warning = FALSE}
+
+theme_set(theme_minimal())
 distributions <-
   tidy_data_final %>%
   ggplot() +
-  geom_histogram(aes(x = raw)) +
+  geom_histogram(aes(x = raw), alpha = 0.7) +
   facet_wrap(~stim)
 distributions
 
 ```
-As described by the authors, the distributions of looking time were all skewed.  Therefore, we used the log transformations of each infant’s mean looking duration to each test type for all further analyses.  As discussed, our primary interest was in comparing looking time between between "triplet" and "illusory triplet" trials.  To reiterate, this comparison is critical since the transitional probablilities between the components of these units were identical, yet only "triplet" stimuli had actually been presented to infants during familiarization.  If infants' looking time differs between these two trials, we can argue that infants' statsitical learning is not limited to tracking transitional probabilities but rather tracks whole units ("chunks") as well.  We ran a two-tailed t-test In order to determine whether looking time did indeed differ between these two conditions ("triplet" and "illusory triplet").
+Therefore, we used the log transformation of infants' mean looking duration measures for all further analyses. As discussed, our primary interest was in comparing looking time between between "triplet" and "illusory triplet" trials. To reiterate, this comparison is critical since the transitional (or inter-item) probablilities between the components of these units were identical, yet only "triplet" stimuli had actually been presented to infants during familiarization. If infants' looking time differs between these two trials, we can argue that infants' statistical learning is not a consequence of tracking transitional probabilities but rather a product of representing higher-level units or "chunks."  We ran a two-tailed t-test in order to determine whether looking time did indeed differ between these two conditions ("triplet" and "illusory triplet").
 
 ```{r ttest, echo = FALSE, include=FALSE}
 t_test <- 
   tidy_data_final %>%
   filter(Experiment == 1) %>%
-  filter(stim != "part") %>%
+  filter(stim != "transitional") %>%
   t.test(data = ., log ~ stim, paired = TRUE)
 
 ```
-Results indicate that there was a significant difference between these two condtions `r apa_print(t_test)$statistic`.  Specifically, infants' in the triplet trials looked significantly longer (M = `r table$mean_log_looking_time[3]`, SD = `r table$sd_log_looking_time[3]`) than those in the illusory triplet trials (M =`r table$mean_log_looking_time[1]`, SD = `r table$sd_log_looking_time[1]`) 
-
-
-These data, along with the summary data from the other three studies are summarized in the following table:
-
-```{r table, echo = FALSE}
+These data are summarized in the following table:
+```{r descriptives table, echo = FALSE}
 table <- 
   tidy_data_final %>%
-  group_by(Experiment, stim) %>% 
+  group_by(Experiment, stim) %>%
+  filter(Experiment == 1) %>%
   summarize(mean_log_looking_time = mean(log), 
             sd_log_looking_time = sd(log),
             mean_raw_looking_time = mean(raw),
@@ -111,20 +141,39 @@ kable(table)
 
 ```
 
+Results indicate that there was a significant difference between these two conditions `r {apa_print(t_test)$statistic}`. Specifically, infants in the triplet trials looked significantly longer (M = `r {table$mean_log_looking_time[3]}`, SD = `r {table$sd_log_looking_time[3]}`) than those in the illusory triplet trials (M =`r {table$mean_log_looking_time[1]}`, SD = `r {table$sd_log_looking_time[1]}`).
+
 To better illustrate the difference in mean looking time observed between the conditions, we reproduced a bar plot created by the authors:
 
 ```{r study1, echo = FALSE}
-Experiment1_results <- tidy_data_final %>%
-  filter(Experiment == 1) %>% 
-  ggplot(aes(x = stim, y = log, fill = stim)) +
-  geom_bar(stat = "identity") + 
-  ggtitle("Mean looking duration to each of the three stimuli types in Experiment 1") 
-Experiment1_results
+pal <- wes_palette("Darjeeling1")
+
+Experiment1_bargraph <- tidy_data_final %>%
+  filter(Experiment==1) %>%
+   mutate(stim = factor(stim, 
+                       levels = c("familiar",
+                                  "transitional",
+                                  "novel"))) %>%
+  group_by(stim) %>%
+  summarize(mean_look_time = mean(log)) %>%
+  ggplot(aes(x = stim, y = mean_look_time, fill = stim)) +
+  geom_col() + 
+  scale_fill_manual(values=pal) +
+  labs(x = "Stimulus Type",
+       y = "Average Looking Duration", 
+       title = "Average Infant Looking Times",
+       subtitle = "Experiment 1") +
+  theme(legend.position = "none", 
+        legend.title = element_blank(), 
+        plot.subtitle = element_text(size = 11, hjust = 0, face = "italic", color = "black"),
+        plot.title = element_text(size = 15, hjust = 0))
+Experiment1_bargraph
 
 ```
 
 # Discussion
-While the data indicate that looking time did in fact differ between the "triplet" and "illusory triplet" trials, lending support to the chunking theory, the direction of this result ran contra to the logic of the researchers.  Specifically, if infants are indeed tracking "chunks" or whole units rather than merely transitional probabilities, "illusory triplet" trials should appear relatively novel to infants because they were never seen before.  This should ilicit longer, rather than shorter, looking time.  In reality, the opposite occured and infants looked longer at triplet trials.  While one could argue that this longer duration reflects a "familiarity preference" and is thus concordant with the researcher's logic, these findings illustrate the difficulty in infering cognitive processes from looking behavior.
+The data indicated that looking time did in fact differ between the "triplet" and "illusory triplet" trials, lending support to the chunking theory. Given that differences in looking time between familiar and novel stimuli can result either from a preference for familiar stimuli or ostensible surprise at the violation of held expectations, the researchers did not have a prima facie prediction about whether infants would look longer at familiar stimuli relative to novel stimuli, or if infants would look longer at novel stimuli (in this case, novel "illusory" sequences with familiar transitional probabilities). Study authors argued only that a chunking model predicts differences in looking time between familiar triplets and novel, "illusory" triplets. This difference in looking time does indeed hold. The difference in looking time provides evidence in support of the chunking model, as this model holds that the illusory triplets will be distinguishable from familiar triplets, and infants' ability to distinguish among stimulus types will be indexed by looking time. Infants looked longer at familiar triplets than at novel, illusory triplets that had the same transitional probabilities seen in the the familiar triplets. Infants' distinction between these two stimulus types suggests that it is not the set of transitional (inter-item) probabilities within a three-shape sequence that makes a sequence recognizable to an infant, but the chunk as a whole.
+  Researchers were prepared to defend either extended looking time to illusory stimuli or shorter looking time to illusory stimuli as evidence in support of chunking models. Interpretation of the difference in mean looking times across the two stimuli types requires that one take recourse in one of two competing ways of interpreting infant looking time. In one view, infants look longer at familiar stimuli because they prefer familiar stimuli. The competing view holds that infants look longer at novel stimuli that violate their expectations.While one could argue that the longer looking towards familiar stimuli reflects a "familiarity preference" and is thus concordant with the researcher's logic, these findings illustrate the difficulty in infering cognitive processes from looking behavior. They also highlight the importance of pre-registration due to the ease with which results in either direction can be interpreted as supporting the researcher's original hypothesis.
 
 \newpage
 

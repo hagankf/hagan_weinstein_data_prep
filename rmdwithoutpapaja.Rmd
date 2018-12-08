@@ -28,8 +28,6 @@ As discussed by (@Slone2018), Eighteen healthy full-term 8-month-olds (14 female
 Following the familiarization sequence,infants were presented with 3 different types of stimuli.  For our purposes, we will focus on the first two.  The first category of stimuli, termed "Triplet test trials"" presented infants' with the one of the same triplets presented during familiarization (e.g., red circle, blue square, orange diamond).  The second category of stimuli, termed "Illusory triplet test trials"" presented a three-shape sequence that was never seen in its entirety during familiarization, but which had the same transitional probabilities as triplets that were seen during familiarization.  Thus, the first two categories were matched in terms of transitional probabilities as established by familiarization but differed in whether or not they were actually seen as a unit during familiarization.
 Since our critical question relates to infant looking behavior between "triplet" and "illusory triplet" trials, we ran a two-tailed t test to determine whether there was a statistically significant difference in looking time between these two trial types.
 
-
-
 # Results
 
 First, we created a visual representation of the distribution of the raw scores for looking duration across all studies and conditions:
